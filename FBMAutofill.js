@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FBM Autofill
-// @downloadUrl  https://raw.githubusercontent.com/ryanclanigan/TampermonkeyScripts/main/FBMAutofill.js
-// @version      0.1
+// @downloadUrl  https://raw.githubusercontent.com/ryanclanigan/TamperMonkeyScripts/main/FBMAutofill.js
+// @version      0.2
 // @author       ryanclanigan
 // @description  Allow speadier input of FBM listings
 // @match        https://www.facebook.com/marketplace/create/item
@@ -118,15 +118,17 @@
       (await waitForElmExactly("Video Games")).click();
 
       var title = (await waitForElmAfter('Title')).value;
-      var userPlatform = stringBetween(title, '[', ']');
       (await waitForElm('Platform')).click();
       await sleep(1000);
-      // Have to use direct equals because of multiple matches
-      var selectedPlatform = getElementThatEqualsText(userPlatform);
-      if (selectedPlatform) {
-        selectedPlatform.click();
+      var threeDO = getElementThatEqualsText('3DO');
+      var next = threeDO?.parentElement?.parentElement?.parentElement?.parentElement;
+      while (next) {
+        if (title.includes(next.innerText)) {
+          next.click();
+          break;
+        }
+        next = next.nextElementSibling;
       }
-
 
       var deliveryButton = await waitForElm("Delivery method", 1);
       await sleep(1500);
@@ -139,6 +141,7 @@
       (await waitForElm("Use a prepaid shipping label")).click();
       (await waitForElm("Use your own shipping label")).click();
 
+      await sleep(1000);
       (await waitForElm("Update")).addEventListener("click", async () => {
         await sleep(1000);
         (await waitForElm("Next")).click();
