@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FBM Refresher
 // @downloadUrl  https://raw.githubusercontent.com/ryanclanigan/TamperMonkeyScripts/main/FBMRefresher.js
-// @version      0.1
+// @version      0.2
 // @author       ryanclanigan
 // @description  Allows automatic refreshing of FBM listings
 // @match        https://www.facebook.com/marketplace/selling/renew_listings/
