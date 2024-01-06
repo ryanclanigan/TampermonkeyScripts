@@ -13,6 +13,10 @@
 (function () {
   'use strict';
 
+  async function sleep(msec) {
+    return new Promise(resolve => setTimeout(resolve, msec));
+  }
+
   function getElementThatEqualsText(text) {
     var maybeNull = document.evaluate("//span[text()='" + text + "']", document, null, XPathResult.ANY_TYPE, null)
       .iterateNext();
@@ -44,7 +48,7 @@
     window.location.reload();
   }, 86_400_000)
 
-  waitForElmExactly('Renew').then(() => {
+  waitForElmExactly('Renew').then(async () => {
     var elem = getElementThatEqualsText('Renew');
     while (!!elem) {
       try {
@@ -53,6 +57,7 @@
         // do nothing in case element disappears
       }
       elem = getElementThatEqualsText('Renew');
+      await sleep(1000);
     }
 
     window.location.reload();
