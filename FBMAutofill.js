@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FBM Autofill
 // @downloadUrl  https://raw.githubusercontent.com/ryanclanigan/TamperMonkeyScripts/main/FBMAutofill.js
-// @version      0.2
+// @version      0.3
 // @author       ryanclanigan
 // @description  Allow speadier input of FBM listings
 // @match        https://www.facebook.com/marketplace/create/item
@@ -99,11 +99,22 @@
     });
   }
 
-  function stringBetween(str, char1, char2) {
-    return str.substring(
-      str.indexOf(char1) + 1,
-      str.lastIndexOf(char2)
-    );
+  function setReactInputValue(input, value) {
+    // Get the original prototype methods
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value"
+    ).set;
+    
+    // Set the value directly
+    nativeInputValueSetter.call(input, value);
+    
+    // Create and dispatch events that React listens for
+    const inputEvent = new Event('input', { bubbles: true });
+    const changeEvent = new Event('change', { bubbles: true });
+    
+    input.dispatchEvent(inputEvent);
+    input.dispatchEvent(changeEvent);
   }
 
   waitForElmAfter('Description').then(elem => {
@@ -130,26 +141,20 @@
         next = next.nextElementSibling;
       }
 
+      (await waitForElm("Next")).click();
+
       var deliveryButton = await waitForElm("Delivery method", 1);
       await sleep(1500);
       deliveryButton.click();
       (await waitForElm("Local pickup")).click();
       (await waitForElm("Shipping")).click();
+      var shippingRate = await waitForElmAfter("Shipping rate");
+      setReactInputValue(shippingRate, '5');
 
-      (await waitForElm("generate")).click();
-      (await waitForElm("LOWEST PRICE")).click();
-      (await waitForElm("Use a prepaid shipping label")).click();
-      (await waitForElm("Use your own shipping label")).click();
-
+      await sleep(2000);
+      (await waitForElm("Next")).click();
       await sleep(1000);
-      (await waitForElm("Update")).addEventListener("click", async () => {
-        await sleep(1000);
-        (await waitForElm("Next")).click();
-        await sleep(1000);
-        (await waitForElm("Next")).click();
-        await sleep(1000);
-        (await waitForElm("Publish")).click();
-      })
+      (await waitForElm("Publish")).click();
     };
   });
 })();
